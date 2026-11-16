@@ -244,7 +244,7 @@ def tela_alertas():
 # 6. TELA 4 - MINHA REGIAO (fluxo completo do cidadao)
 # ============================================================
 
-def tela_minha_regiao():
+def tela_minha_regiao(regiao=None):
     st.title("📍 Minha região")
     st.markdown(
         "Escolha onde você está para ver o risco, o motivo e o que fazer."
@@ -257,7 +257,9 @@ def tela_minha_regiao():
         return
 
     por_regiao = {a["regiao"]: a for a in todos}
-    escolhida = st.selectbox("Região", sorted(por_regiao))
+    opcoes = sorted(por_regiao)
+    inicial = opcoes.index(regiao) if regiao in opcoes else 0
+    escolhida = st.selectbox("Região", opcoes, index=inicial)
     alerta = por_regiao[escolhida]
     linha = df_painel[df_painel["NOME_REGIAO"] == escolhida].iloc[0]
 
@@ -328,6 +330,23 @@ def tela_sensores():
 # ============================================================
 # 8. NAVEGACAO
 # ============================================================
+
+modo_apresentacao = st.query_params.get("apresentacao")
+if modo_apresentacao:
+    from app import apresentacao
+
+    apresentacao.executar(
+        st,
+        {
+            "visao_geral": tela_visao_geral,
+            "mapa": tela_mapa,
+            "alertas": tela_alertas,
+            "minha_regiao": tela_minha_regiao,
+            "sensores": tela_sensores,
+        },
+        "auto" if modo_apresentacao == "auto" else "manual",
+    )
+    st.stop()
 
 {
     TELAS[0]: tela_visao_geral,
