@@ -135,15 +135,18 @@ def tela_visao_geral():
         "Regiões em alerta (alto ou crítico)",
         int(df_painel["NIVEL_RISCO"].isin(["ALTO", "CRITICO"]).sum())
     )
-    chuva_rotulo = "prevista" if fonte == "ORACLE" else "medida (simulada, 24 h)"
-    vento_rotulo = "previsto" if fonte == "ORACLE" else "medido (simulado, 24 h)"
     c3.metric(
-        f"Maior chuva {chuva_rotulo}",
+        "Chuva máxima",
         f"{df_painel['CHUVA_PREVISTA'].max():.1f} mm" if not df_painel.empty else "-"
     )
     c4.metric(
-        f"Maior vento {vento_rotulo}",
+        "Vento máximo",
         f"{df_painel['VENTO_MAXIMO'].max():.0f} km/h" if not df_painel.empty else "-"
+    )
+    st.caption(
+        "Chuva e vento: previsão das próximas horas (Oracle)."
+        if fonte == "ORACLE" else
+        "Chuva e vento: últimas 24 h dos sensores SIMULADOS, não é previsão."
     )
 
     st.subheader("Regiões e histórico de ocorrências")
@@ -197,7 +200,8 @@ def tela_mapa():
                     "LATITUDE": False, "LONGITUDE": False},
         color_discrete_map=CORES_NIVEL,
         category_orders={"NIVEL_RISCO": ORDEM_NIVEIS},
-        zoom=10,
+        center=dados.centro_do_mapa(df_mapa),
+        zoom=10.5,
         height=520,
         **estilo
     )

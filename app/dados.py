@@ -184,6 +184,14 @@ def carregar_sensores():
     return sensores_simulados(), "SIMULADO", None
 
 
+def centro_do_mapa(df):
+    """Centro do mapa = media das regioes (sem isso o Plotly abre em 0,0)."""
+    return {
+        "lat": float(df["LATITUDE"].mean()),
+        "lon": float(df["LONGITUDE"].mean()),
+    }
+
+
 def painel_para_alertas(df):
     """Converte o painel em alertas ordenados (so regioes com analise)."""
     lista = []

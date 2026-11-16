@@ -36,6 +36,15 @@ def test_alertas_do_painel_vem_ordenados(monkeypatch):
     assert niveis == sorted(niveis, reverse=True)
 
 
+def test_mapa_centrado_em_sao_paulo(monkeypatch):
+    """Bug visto no navegador real: sem center, o mapa abria em lat 0, lon 0."""
+    for v in ("DB_USER", "DB_PASSWORD", "DB_DSN"):
+        monkeypatch.delenv(v, raising=False)
+    centro = dados.centro_do_mapa(dados.painel_simulado())
+    assert -23.7 < centro["lat"] < -23.5
+    assert -46.8 < centro["lon"] < -46.5
+
+
 def test_oracle_indisponivel_cai_no_simulado_com_aviso(monkeypatch):
     monkeypatch.setenv("DB_USER", "x")
     monkeypatch.setenv("DB_PASSWORD", "x")
