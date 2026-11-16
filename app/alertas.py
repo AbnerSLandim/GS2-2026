@@ -61,8 +61,12 @@ def pontuar(chuva_mm, vento_kmh, historico):
     return round(pontuacao, 2)
 
 
-def montar_alerta(nome_regiao, chuva_mm, vento_kmh, pontuacao, nivel=None):
-    """Monta o alerta de uma regiao: nivel, motivo e medidas preventivas."""
+def montar_alerta(nome_regiao, chuva_mm, vento_kmh, pontuacao, nivel=None,
+                  ocorrencias=0, data_analise=None):
+    """Monta o alerta de uma regiao: nivel, motivo e medidas preventivas.
+
+    O motivo cruza clima e HISTORICO de ocorrencias da regiao.
+    """
     nivel = nivel or calcular_nivel_risco(pontuacao)
 
     fatores = []
@@ -70,13 +74,15 @@ def montar_alerta(nome_regiao, chuva_mm, vento_kmh, pontuacao, nivel=None):
         fatores.append(f"chuva prevista de {chuva_mm:.1f} mm")
     if calcular_pontuacao_vento(vento_kmh) >= 50:
         fatores.append(f"vento de até {vento_kmh:.0f} km/h")
+    if ocorrencias >= 3:
+        fatores.append(f"{int(ocorrencias)} ocorrências registradas na região")
 
     if fatores:
         motivo = "Risco elevado por " + " e ".join(fatores) + "."
     else:
         motivo = (
             f"Chuva prevista de {chuva_mm:.1f} mm e vento de até "
-            f"{vento_kmh:.0f} km/h."
+            f"{vento_kmh:.0f} km/h; {int(ocorrencias)} ocorrência(s) no histórico."
         )
 
     return {
@@ -85,6 +91,8 @@ def montar_alerta(nome_regiao, chuva_mm, vento_kmh, pontuacao, nivel=None):
         "pontuacao": float(pontuacao),
         "motivo": motivo,
         "medidas": list(MEDIDAS[nivel]),
+        "ocorrencias": int(ocorrencias),
+        "data_analise": data_analise,
     }
 
 

@@ -7,6 +7,7 @@ Camada de dados do MVP.
 - Sem Oracle: usa dados SIMULADOS, sempre identificados como tal.
 """
 
+import logging
 import os
 
 import pandas as pd
@@ -14,29 +15,37 @@ import pandas as pd
 from app import alertas
 from iot.simulador_sensores import gerar_leituras
 
-# Coordenadas aproximadas (centro de cada bairro), usadas so no modo simulado.
+# Nomes e coordenadas IGUAIS aos de sql/02_dados_iniciais.sql (modulo Big Data).
 # Com Oracle, vale LATITUDE/LONGITUDE da tabela REGIOES.
 REGIOES_DEMO = {
     "Centro": (-23.5505, -46.6333),
-    "Mooca": (-23.5604, -46.5995),
-    "Ipiranga": (-23.5886, -46.6103),
-    "Vila Mariana": (-23.5893, -46.6336),
-    "Butantã": (-23.5712, -46.7266),
+    "Mooca": (-23.5500, -46.6000),
+    "Ipiranga": (-23.5850, -46.6100),
+    "Vila Mariana": (-23.5890, -46.6340),
+    "Butanta": (-23.5700, -46.7200),
 }
 
-# Ocorrencias historicas ilustrativas (mesma ideia dos dados de exemplo do Big Data).
+# Ocorrencias historicas ILUSTRATIVAS do modo simulado (nao sao dados reais).
 OCORRENCIAS_DEMO = {
     "Centro": ["MEDIA", "ALTA"],
     "Mooca": ["ALTA", "ALTA", "CRITICA"],
     "Ipiranga": ["ALTA", "CRITICA", "CRITICA"],
     "Vila Mariana": ["BAIXA", "MEDIA"],
-    "Butantã": ["CRITICA", "CRITICA", "ALTA", "ALTA"],
+    "Butanta": ["CRITICA", "CRITICA", "ALTA", "ALTA"],
 }
 
 COLUNAS_PAINEL = [
     "NOME_REGIAO", "LATITUDE", "LONGITUDE", "CHUVA_PREVISTA",
     "VENTO_MAXIMO", "TOTAL_OCORRENCIAS", "PONTUACAO_RISCO", "NIVEL_RISCO",
+    "DATA_ANALISE",
 ]
+
+logger = logging.getLogger(__name__)
+
+AVISO_ORACLE = (
+    "Oracle indisponível: mostrando dados simulados. "
+    "Detalhes no log do servidor."
+)
 
 
 def oracle_configurado():
@@ -81,9 +90,9 @@ HISTORICO AS (
     GROUP BY ID_REGIAO
 ),
 ULTIMA_ANALISE AS (
-    SELECT ID_REGIAO, PONTUACAO_RISCO, NIVEL_RISCO
+    SELECT ID_REGIAO, PONTUACAO_RISCO, NIVEL_RISCO, DATA_ANALISE
     FROM (
-        SELECT ID_REGIAO, PONTUACAO_RISCO, NIVEL_RISCO,
+        SELECT ID_REGIAO, PONTUACAO_RISCO, NIVEL_RISCO, DATA_ANALISE,
                ROW_NUMBER() OVER (
                    PARTITION BY ID_REGIAO
                    ORDER BY DATA_ANALISE DESC, ID_ANALISE DESC
@@ -96,7 +105,7 @@ SELECT R.NOME_REGIAO, R.LATITUDE, R.LONGITUDE,
        NVL(C.CHUVA_PREVISTA, 0) AS CHUVA_PREVISTA,
        NVL(C.VENTO_MAXIMO, 0) AS VENTO_MAXIMO,
        NVL(H.TOTAL_OCORRENCIAS, 0) AS TOTAL_OCORRENCIAS,
-       A.PONTUACAO_RISCO, A.NIVEL_RISCO
+       A.PONTUACAO_RISCO, A.NIVEL_RISCO, A.DATA_ANALISE
 FROM REGIOES R
 LEFT JOIN CLIMA C ON R.ID_REGIAO = C.ID_REGIAO
 LEFT JOIN HISTORICO H ON R.ID_REGIAO = H.ID_REGIAO
@@ -134,6 +143,7 @@ def painel_simulado():
             "TOTAL_OCORRENCIAS": len(ocorrencias),
             "PONTUACAO_RISCO": pontuacao,
             "NIVEL_RISCO": alertas.calcular_nivel_risco(pontuacao),
+            "DATA_ANALISE": None,
         })
     return pd.DataFrame(linhas, columns=COLUNAS_PAINEL)
 
@@ -151,8 +161,9 @@ def carregar_painel(horas=24):
                            "VENTO_MAXIMO", "PONTUACAO_RISCO"):
                 df[coluna] = pd.to_numeric(df[coluna], errors="coerce")
             return df, "ORACLE", None
-        except Exception as erro:  # banco fora do ar, tabelas ausentes etc.
-            return painel_simulado(), "SIMULADO", f"Oracle indisponível: {erro}"
+        except Exception:  # banco fora do ar, tabelas ausentes etc.
+            logger.exception("Falha ao ler o painel no Oracle")
+            return painel_simulado(), "SIMULADO", AVISO_ORACLE
     return painel_simulado(), "SIMULADO", None
 
 
@@ -167,8 +178,9 @@ def carregar_sensores():
             return sensores_simulados(), "SIMULADO", (
                 "Sem leituras de sensor no Oracle; mostrando simulação."
             )
-        except Exception as erro:
-            return sensores_simulados(), "SIMULADO", f"Oracle indisponível: {erro}"
+        except Exception:
+            logger.exception("Falha ao ler os sensores no Oracle")
+            return sensores_simulados(), "SIMULADO", AVISO_ORACLE
     return sensores_simulados(), "SIMULADO", None
 
 
@@ -182,5 +194,7 @@ def painel_para_alertas(df):
             float(linha["VENTO_MAXIMO"]),
             float(linha["PONTUACAO_RISCO"]),
             linha["NIVEL_RISCO"],
+            ocorrencias=int(linha["TOTAL_OCORRENCIAS"]),
+            data_analise=linha.get("DATA_ANALISE"),
         ))
     return alertas.ordenar_alertas(lista)

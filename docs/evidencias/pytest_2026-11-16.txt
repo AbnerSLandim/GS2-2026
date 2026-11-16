@@ -1,0 +1,39 @@
+﻿Execucao em 2026-11-16 09:09 | Python 3.11.5 | Windows | numpy 2.4.6 pandas 2.3.3 streamlit 1.67.0
+============================= test session starts =============================
+platform win32 -- Python 3.11.5, pytest-9.2.0, pluggy-1.7.0 -- C:\Users\Aldri\AppData\Local\Programs\Python\Python311\python.exe
+cachedir: .pytest_cache
+rootdir: C:\dev\GS2-2026
+plugins: anyio-4.6.0, Faker-33.1.0
+collecting ... collected 29 items
+
+tests/test_alertas.py::test_pontuar_usa_mesma_formula_do_big_data PASSED [  3%]
+tests/test_alertas.py::test_historico_limitado_a_100 PASSED              [  6%]
+tests/test_alertas.py::test_alerta_critico_tem_motivo_e_medidas PASSED   [ 10%]
+tests/test_alertas.py::test_alerta_baixo_nao_alarma PASSED               [ 13%]
+tests/test_alertas.py::test_ordenar_do_mais_grave_ao_menos_grave PASSED  [ 17%]
+tests/test_app_streamlit.py::test_sem_configuracao_o_app_fica_bloqueado PASSED [ 20%]
+tests/test_app_streamlit.py::test_login_errado_e_certo PASSED            [ 24%]
+tests/test_app_streamlit.py::test_bloqueio_apos_tentativas_erradas PASSED [ 27%]
+tests/test_app_streamlit.py::test_cinco_telas_funcionam PASSED           [ 31%]
+tests/test_app_streamlit.py::test_conteudo_de_cada_tela PASSED           [ 34%]
+tests/test_app_streamlit.py::test_fluxo_minha_regiao_muda_com_a_escolha PASSED [ 37%]
+tests/test_contrato_big_data.py::test_regioes_do_mvp_batem_com_o_seed_do_oracle PASSED [ 41%]
+tests/test_contrato_big_data.py::test_pesos_duplicados_batem_com_calcular_risco PASSED [ 44%]
+tests/test_contrato_big_data.py::test_painel_simulado_recalculado_de_forma_independente PASSED [ 48%]
+tests/test_contrato_big_data.py::test_motivo_do_alerta_considera_o_historico PASSED [ 51%]
+tests/test_contrato_big_data.py::test_gitignore_protege_env PASSED       [ 55%]
+tests/test_contrato_big_data.py::test_gravar_falha_alto_se_regiao_nao_cadastrada PASSED [ 58%]
+tests/test_estrutura.py::test_scripts_python_compilam PASSED             [ 62%]
+tests/test_estrutura.py::test_segredos_fora_do_git PASSED                [ 65%]
+tests/test_estrutura.py::test_scripts_sql_existem PASSED                 [ 68%]
+tests/test_iot_e_dados.py::test_simulador_e_deterministico_e_valido PASSED [ 72%]
+tests/test_iot_e_dados.py::test_painel_simulado_tem_regras_do_big_data PASSED [ 75%]
+tests/test_iot_e_dados.py::test_alertas_do_painel_vem_ordenados PASSED   [ 79%]
+tests/test_iot_e_dados.py::test_oracle_indisponivel_cai_no_simulado_com_aviso PASSED [ 82%]
+tests/test_seguranca.py::test_hash_e_verificacao PASSED                  [ 86%]
+tests/test_seguranca.py::test_hash_tem_sal_aleatorio PASSED              [ 89%]
+tests/test_seguranca.py::test_hash_malformado_nunca_autentica PASSED     [ 93%]
+tests/test_seguranca.py::test_falha_fechada_sem_configuracao PASSED      [ 96%]
+tests/test_seguranca.py::test_modos PASSED                               [100%]
+
+============================= 29 passed in 5.19s ==============================

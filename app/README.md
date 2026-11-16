@@ -34,6 +34,12 @@ Para desenvolvimento local sem senha: `APP_AUTH=off` no `.env`.
 - 5 tentativas erradas bloqueiam o login por 30 s (por sessão).
 - O `.env` está no `.gitignore` e no `.dockerignore`.
 
+## Uso de IA generativa (declaração exigida pelo edital)
+
+- **Claude Code (Anthropic)** foi usado para escrever e revisar o código de `app/`, `iot/` e `tests/`, os documentos em `docs/` e para auditar o resultado.
+- O código foi revisado e executado (`python -m pytest tests -v`) pelo integrante responsável antes da entrega.
+- Dados de exemplo e leituras de sensor são sintéticos.
+
 ## Limites conhecidos
 
 - Os sensores são **simulados**; não há hardware conectado.

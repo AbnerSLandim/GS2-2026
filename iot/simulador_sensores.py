@@ -24,7 +24,7 @@ PERFIS = {
     "Mooca": (0.4, 22.0),
     "Ipiranga": (0.6, 26.0),
     "Vila Mariana": (0.3, 20.0),
-    "Butantã": (1.2, 34.0),
+    "Butanta": (1.2, 34.0),
 }
 
 
@@ -71,6 +71,13 @@ def gravar_no_oracle(leituras):
         cursor.execute("SELECT NOME_REGIAO, ID_REGIAO FROM REGIOES")
         ids = {nome: id_regiao for nome, id_regiao in cursor.fetchall()}
 
+        ausentes = sorted({l["NOME_REGIAO"] for l in leituras} - set(ids))
+        if ausentes:
+            raise ValueError(
+                "Regiões sem cadastro em REGIOES (rode sql/02_dados_iniciais.sql "
+                f"ou ajuste os nomes): {', '.join(ausentes)}"
+            )
+
         linhas = [
             {
                 "id_regiao": ids[leitura["NOME_REGIAO"]],
@@ -81,7 +88,6 @@ def gravar_no_oracle(leituras):
                 "umidade": leitura["UMIDADE"],
             }
             for leitura in leituras
-            if leitura["NOME_REGIAO"] in ids
         ]
         cursor.executemany(
             """
