@@ -1,0 +1,20 @@
+# Segredos — nunca versionar
+.env
+*.env
+!.env.example
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# IDE / SO
+.idea/
+.vscode/
+.DS_Store
+
+# Entrega e vídeo (arquivos pesados)
+entrega/*.zip
+video/*.mp4
