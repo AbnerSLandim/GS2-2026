@@ -43,3 +43,4 @@ def test_oracle_indisponivel_cai_no_simulado_com_aviso(monkeypatch):
     monkeypatch.setattr(dados, "_consultar", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("falhou")))
     df, fonte, aviso = dados.carregar_painel()
     assert fonte == "SIMULADO" and "indisponível" in aviso
+    assert "falhou" not in aviso  # o detalhe do erro nao vai para a tela

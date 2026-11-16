@@ -135,13 +135,14 @@ def tela_visao_geral():
         "Regiões em alerta (alto ou crítico)",
         int(df_painel["NIVEL_RISCO"].isin(["ALTO", "CRITICO"]).sum())
     )
-    origem = "prevista" if fonte == "ORACLE" else "medida (simulada, 24 h)"
+    chuva_rotulo = "prevista" if fonte == "ORACLE" else "medida (simulada, 24 h)"
+    vento_rotulo = "previsto" if fonte == "ORACLE" else "medido (simulado, 24 h)"
     c3.metric(
-        f"Maior chuva {origem}",
+        f"Maior chuva {chuva_rotulo}",
         f"{df_painel['CHUVA_PREVISTA'].max():.1f} mm" if not df_painel.empty else "-"
     )
     c4.metric(
-        f"Maior vento {origem}",
+        f"Maior vento {vento_rotulo}",
         f"{df_painel['VENTO_MAXIMO'].max():.0f} km/h" if not df_painel.empty else "-"
     )
 

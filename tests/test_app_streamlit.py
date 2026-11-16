@@ -53,9 +53,11 @@ def test_bloqueio_apos_tentativas_erradas(monkeypatch):
         at.text_input[0].set_value("errada")
         at.button[0].click().run()
 
-    # Mesmo com a senha certa, fica bloqueado durante a janela.
-    at.run()
+    # Mesmo digitando a senha CERTA, fica bloqueado durante a janela.
+    at.text_input[0].set_value("certa")
+    at.button[0].click().run()
     assert any("Muitas tentativas" in e.value for e in at.error)
+    assert len(at.metric) == 0  # painel continua fechado
 
 
 def test_cinco_telas_funcionam(monkeypatch):
@@ -91,6 +93,10 @@ def test_fluxo_minha_regiao_muda_com_a_escolha(monkeypatch):
     at.sidebar.radio[0].set_value(TELAS[3]).run()
 
     at.selectbox[0].set_value("Butanta").run()
-    assert any("Butanta" in s.value for s in at.subheader)
+    assert any("Butanta" in s.value and "CRITICO" in s.value for s in at.subheader)
+    assert any("Motivo" in m.value for m in at.markdown)
+    assert any("199" in m.value for m in at.markdown)  # medida do nivel critico
+
     at.selectbox[0].set_value("Centro").run()
     assert any("Centro" in s.value for s in at.subheader)
+    assert not any("199" in m.value for m in at.markdown)  # medidas mudaram

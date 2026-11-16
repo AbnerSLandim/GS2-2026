@@ -39,7 +39,7 @@ DevOps: Docker + GitHub Actions (CI) + testes + autenticação (login com hash P
 | Ingestão → Oracle → cálculo de risco → dashboard (Joy) | existe no código da Joy; **não executado por nós** |
 | MVP lê as mesmas tabelas Oracle | implementado, **não testado contra Oracle real** |
 | Sensores → Oracle (`--gravar`) | implementado, **não testado contra Oracle real** |
-| Sensores alimentam o cálculo de risco | **não**. O cálculo usa só `TIPO_DADO = 'PREVISAO'` |
+| Sensores alimentam o cálculo de risco | **parcial**. No modo simulado do MVP, sim. Com Oracle, o cálculo da Joy usa só `TIPO_DADO = 'PREVISAO'` |
 | IA gera ou classifica alertas | **não integrado**. Os alertas do MVP são por regras |
 
 Integrar sensores e IA ao fluxo é diferencial do edital ("áreas integradas") e não está pronto.

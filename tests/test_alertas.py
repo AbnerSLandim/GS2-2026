@@ -14,7 +14,10 @@ def test_historico_limitado_a_100():
 
 
 def test_alerta_critico_tem_motivo_e_medidas():
-    alerta = alertas.montar_alerta("Butantã", 35, 85, 90)
+    # chuva 35 mm (100 pts) e vento 85 km/h (100 pts), historico no maximo
+    pontuacao = alertas.pontuar(35, 85, 100)
+    alerta = alertas.montar_alerta("Butanta", 35, 85, pontuacao)
+    assert pontuacao == 100.0
     assert alerta["nivel"] == "CRITICO"
     assert "chuva" in alerta["motivo"] and "vento" in alerta["motivo"]
     assert any("199" in m for m in alerta["medidas"])

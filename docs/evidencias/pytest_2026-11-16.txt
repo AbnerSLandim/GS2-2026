@@ -1,4 +1,4 @@
-﻿Execucao em 2026-11-16 09:09 | Python 3.11.5 | Windows | numpy 2.4.6 pandas 2.3.3 streamlit 1.67.0
+﻿Execucao em 2026-11-16 09:18 | Python 3.11.5 | Windows | numpy 2.4.6 pandas 2.3.3 streamlit 1.67.0 requests 2.32.3
 ============================= test session starts =============================
 platform win32 -- Python 3.11.5, pytest-9.2.0, pluggy-1.7.0 -- C:\Users\Aldri\AppData\Local\Programs\Python\Python311\python.exe
 cachedir: .pytest_cache
@@ -36,4 +36,4 @@ tests/test_seguranca.py::test_hash_malformado_nunca_autentica PASSED     [ 93%]
 tests/test_seguranca.py::test_falha_fechada_sem_configuracao PASSED      [ 96%]
 tests/test_seguranca.py::test_modos PASSED                               [100%]
 
-============================= 29 passed in 5.19s ==============================
+============================= 29 passed in 4.95s ==============================

@@ -71,17 +71,19 @@ def montar_alerta(nome_regiao, chuva_mm, vento_kmh, pontuacao, nivel=None,
 
     fatores = []
     if calcular_pontuacao_chuva(chuva_mm) >= 50:
-        fatores.append(f"chuva prevista de {chuva_mm:.1f} mm")
+        fatores.append(f"chuva de {chuva_mm:.1f} mm")
     if calcular_pontuacao_vento(vento_kmh) >= 50:
         fatores.append(f"vento de até {vento_kmh:.0f} km/h")
     if ocorrencias >= 3:
         fatores.append(f"{int(ocorrencias)} ocorrências registradas na região")
 
-    if fatores:
+    if fatores and nivel in ("ALTO", "CRITICO"):
         motivo = "Risco elevado por " + " e ".join(fatores) + "."
+    elif fatores:
+        motivo = "Pontos de atenção: " + " e ".join(fatores) + "."
     else:
         motivo = (
-            f"Chuva prevista de {chuva_mm:.1f} mm e vento de até "
+            f"Chuva de {chuva_mm:.1f} mm e vento de até "
             f"{vento_kmh:.0f} km/h; {int(ocorrencias)} ocorrência(s) no histórico."
         )
 

@@ -36,9 +36,9 @@ Legenda: ✅ feito e verificado · 🟡 feito com verificação parcial ou pend�
 
 | Critério (edital) | Pts | Status | Evidência e limite |
 |---|---|---|---|
-| 01 Protótipo: 4+ telas funcionais, web ou mobile | 1 | ✅ | 5 telas (`app/main.py`): visão geral, mapa, alertas, minha região, sensores. `test_cinco_telas_funcionam`. **Nunca visto num navegador real** |
-| 02 IoT: 2+ sensores (Arduino, TinkerCad, reais ou mock) | 1 | 🟡 | 2 sensores **mock** (chuva e vento) em `iot/simulador_sensores.py`, aceitos pelo edital. Sem hardware. Gravação no Oracle (`--gravar`) escrita e testada só com banco falso |
-| 03 Fluxo funcional: um uso completo, do início ao fim | 1 | 🟡 | Fluxo: login → "Minha região" → escolhe região → risco, motivo e medidas. Testado em `test_fluxo_minha_regiao_muda_com_a_escolha`. Não passa por sensor nem IA |
+| 01 Protótipo: 4+ telas funcionais, web ou mobile | 1 | 🟡 | 5 telas (`app/main.py`): visão geral, mapa, alertas, minha região, sensores. Todas abrem sem erro no teste automatizado (`test_cinco_telas_funcionam`). **Nunca vistas num navegador real**; faltam os prints para o PDF |
+| 02 IoT: 2+ sensores (Arduino, TinkerCad, reais ou mock) | 1 | ✅ | 2 sensores **mock** (chuva e vento) em `iot/simulador_sensores.py`, aceitos pelo edital, mostrados na tela Sensores. A gravação no Oracle (`--gravar`) não faz parte do critério e só foi testada com banco falso |
+| 03 Fluxo funcional: um uso completo, do início ao fim | 1 | 🟡 | Fluxo: login → "Minha região" → escolhe região → risco, motivo e medidas. Testado com login real em `test_fluxo_minha_regiao_muda_com_a_escolha`. No modo simulado o risco passa pelas leituras dos sensores; não passa por IA |
 | 04 Arquitetura: diagrama geral com as áreas e como se conectam | 1 | 🟡 | Rascunho em ASCII em `docs/arquitetura.md`. **Falta a imagem final para o PDF** e a confirmação do que a IA vai ser |
 
 ### Área 4 — DevOps, segurança e qualidade
@@ -58,14 +58,17 @@ Não estimo a nota: a avaliação é de professores.
 2. **Diagrama final da arquitetura (1 pt):** depende de a área de IA dizer o que entrega.
 3. **Conteúdo até a fase 7:** **não verificado** se Streamlit, Plotly e python-oracledb estão no conteúdo até a fase 7. Se não estiverem, o edital diz que a área não pontua. Confirmar com o grupo/professor.
 4. **Cada área tem que rodar só pelo README.** O README da raiz é da Joy e descreve só o Big Data. Falta ele cobrir o MVP, o simulador e o login (hoje isso está em `app/README.md`).
-5. **Declaração de uso de IA no README:** o código do MVP foi escrito com apoio do Claude Code (Anthropic). Precisa constar no README e **o Aldrin precisa ler e entender o código antes de entregar**; o edital proíbe entregar código gerado sem entender e sem revisar.
-6. **Pacote de entrega:** `.zip`, PDF e `.txt` com RM de todos. Falta reunir os RMs do grupo e o link do vídeo.
+5. **Declaração de uso de IA no README:** o código do MVP foi escrito com apoio do Claude Code (Anthropic). Está declarado em `app/README.md`, mas a linha de **revisão humana está em branco de propósito**: **o Aldrin precisa ler e entender o código antes de entregar** e só então preencher nome e data. O edital proíbe entregar código gerado sem entender e sem revisar. Hoje essa revisão **não foi feita**.
+6. **README da raiz e versão do Python:** além de cobrir o MVP, precisa dizer Python 3.11 ou 3.12 e trazer o `docker build`/`run`. O README da Joy só descreve o Big Data e mostra uma pasta `big-data/` que não existe.
+7. **Código organizado por áreas:** o edital pede isso; os arquivos de Big Data da Joy ficam soltos na raiz. Mover é decisão dela.
+8. **Pacote de entrega:** `.zip`, PDF e `.txt` com RM de todos. Falta reunir os RMs do grupo e o link do vídeo. No portal, o **Grupo 75 da GS2 só tem o Aldrin** (máximo 5).
+9. **Prazo:** o portal mostra 19/11 às 23h59 e o edital diz 23h55. Usar 23h55.
 
 ## 5. Integração entre áreas (diferencial, não soma nota)
 
 | Diferencial do edital | Situação |
 |---|---|
-| Áreas integradas (sensores alimentam o dashboard; IA usa os dados do pipeline) | **Não**. Os sensores só aparecem na tela de sensores; o risco usa a previsão |
+| Áreas integradas (sensores alimentam o dashboard; IA usa os dados do pipeline) | **Parcial.** No modo simulado, as leituras dos sensores alimentam a pontuação de risco do MVP. Com Oracle, o risco vem da previsão e os sensores não entram no cálculo da Joy. IA não integrada |
 | Pipeline ponta a ponta (commit → build, testes e deploy) | Parcial no papel: CI roda testes e build. **Deploy não existe**. Nada executado |
 | IA medida | Fora do nosso escopo |
 | Validado com gente real | **Não**. Ninguém do público testou |
