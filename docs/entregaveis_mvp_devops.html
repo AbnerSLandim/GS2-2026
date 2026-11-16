@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>AlertaClima — MVP, IoT e DevOps</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm; }
+  body { font-family: "Segoe UI", Arial, sans-serif; color: #1d1d1f; font-size: 10.5pt; line-height: 1.45; }
+  h1 { font-size: 22pt; margin: 0 0 4px; }
+  h2 { font-size: 14pt; border-bottom: 2px solid #c8281e; padding-bottom: 3px; margin-top: 22px; }
+  h3 { font-size: 11.5pt; margin: 14px 0 4px; }
+  .sub { color: #555; margin-bottom: 14px; }
+  table { border-collapse: collapse; width: 100%; margin: 6px 0 10px; font-size: 9.5pt; }
+  th, td { border: 1px solid #ccc; padding: 4px 6px; text-align: left; vertical-align: top; }
+  th { background: #f2f2f2; }
+  img { width: 100%; border: 1px solid #ccc; margin: 4px 0 2px; }
+  .cap { font-size: 9pt; color: #555; margin-bottom: 10px; }
+  pre { background: #f6f6f6; border: 1px solid #ddd; padding: 6px 8px; font-size: 8.5pt; white-space: pre-wrap; }
+  .quebra { page-break-before: always; }
+  .aviso { background: #fff6e0; border-left: 4px solid #e0b400; padding: 6px 10px; font-size: 9.5pt; }
+</style>
+</head>
+<body>
+
+<h1>🌧️ AlertaClima</h1>
+<div class="sub">FIAP Global Solution 2026/2 · CitizenTech · Turma 4ESOA<br>
+Entregáveis das áreas <b>3 — MVP, IoT e experiência digital</b> e <b>4 — DevOps, segurança e qualidade</b><br>
+Responsável por estas áreas: Aldrin da Silva Rodrigues (RM551679)</div>
+
+<h2>O problema e o cidadão</h2>
+<p>Moradores de bairros de São Paulo que já sofreram enchentes, alagamentos e deslizamentos
+recebem a previsão do tempo, mas não sabem se <b>a sua região</b> está em risco nem <b>o que fazer</b>.
+O AlertaClima cruza previsão de chuva e vento com o histórico de ocorrências de cada bairro e
+mostra um alerta com <b>motivo</b> e <b>medidas preventivas</b>.
+ODS relacionados: 11 (Cidades e comunidades sustentáveis) e 13 (Ação contra a mudança global do clima).</p>
+
+<h2>Área 3 — MVP, IoT e experiência digital</h2>
+
+<h3>01 · Protótipo: 5 telas funcionais (web, Streamlit)</h3>
+<img src="evidencias/prints/1_visao_geral.jpg">
+<div class="cap">Tela 1 — Visão geral: indicadores e regiões com histórico de ocorrências.</div>
+<img src="evidencias/prints/2_mapa.jpg">
+<div class="cap">Tela 2 — Mapa de riscos: bolhas por bairro, cor = nível de risco, tamanho = pontuação.</div>
+
+<div class="quebra"></div>
+<img src="evidencias/prints/3_alertas.jpg">
+<div class="cap">Tela 3 — Alertas: do mais grave ao menos grave, com motivo e medidas preventivas.</div>
+<img src="evidencias/prints/4_minha_regiao.jpg">
+<div class="cap">Tela 4 — Minha região: o cidadão escolhe onde está e vê risco, motivo e o que fazer.</div>
+
+<div class="quebra"></div>
+<h3>02 · IoT: 2 sensores simulados (chuva e vento)</h3>
+<p><code>iot/simulador_sensores.py</code> gera leituras horárias por bairro no formato da tabela
+<code>DADOS_CLIMATICOS</code> com <code>TIPO_DADO = 'SENSOR'</code> (já previsto no modelo do Big Data).
+Com <code>--gravar</code>, grava no Oracle. Os sensores são <b>mock</b>, como o edital permite.</p>
+<img src="evidencias/prints/5_sensores.jpg">
+<div class="cap">Tela 5 — Sensores: leituras simuladas de chuva (mm/h) e vento (km/h) das últimas 24 h.</div>
+
+<h3>03 · Fluxo funcional, do início ao fim</h3>
+<table>
+<tr><th>Passo</th><th>O que acontece</th></tr>
+<tr><td>1. Entrada</td><td>Sensores de chuva e vento geram leituras (e, com Oracle, a previsão Open-Meteo do módulo de Big Data).</td></tr>
+<tr><td>2. Login</td><td>O cidadão/operador entra com senha (hash PBKDF2).</td></tr>
+<tr><td>3. Processamento</td><td>A pontuação de risco usa a mesma fórmula do Big Data: chuva 50%, vento 20%, histórico 30%.</td></tr>
+<tr><td>4. Escolha</td><td>Em "Minha região", escolhe o bairro.</td></tr>
+<tr><td>5. Saída</td><td>Vê o nível (BAIXO a CRÍTICO), o motivo e as medidas preventivas. Ex.: Butanta → CRÍTICO 78/100, "chuva de 28.1 mm e vento de até 50 km/h e 4 ocorrências registradas na região".</td></tr>
+</table>
+
+<h3>04 · Arquitetura</h3>
+<pre>
+                          CIDADÃO (login)
+                               │
+                 MVP web — 5 telas (app/main.py)
+                  ▲                         ▲
+     alertas com motivo e medidas    leituras de sensor (IoT)
+          (app/alertas.py)           (iot/simulador_sensores.py)
+                  │                         │ TIPO_DADO = 'SENSOR'
+Open-Meteo ─► ingestao_climatica.py ─► ORACLE ◄────────────────┘
+                                      REGIOES · DADOS_CLIMATICOS
+Histórico de ocorrências ───────────► OCORRENCIAS · ANALISE_RISCO
+                                         │
+                          processamento/calcular_risco.py
+                                         │
+                       dashboard.py (Big Data e visualização)
+
+IA e automação: classificação e texto dos alertas (área de IA).
+DevOps: Git + GitHub Actions (testes + build Docker) + login + segredos fora do Git.
+</pre>
+
+<div class="quebra"></div>
+<h2>Área 4 — DevOps, segurança e qualidade</h2>
+
+<h3>01 · Organização e Git</h3>
+<p>Código por módulos: <code>app/</code> (MVP), <code>iot/</code> (sensores), <code>processamento/</code> e <code>sql/</code> (Big Data),
+<code>tests/</code>, <code>docs/</code>, <code>entrega/</code>. Versionado no GitHub (repositório do grupo, branch
+<code>aldrin/estrutura-mvp-devops</code>).</p>
+
+<h3>02 · DevOps: CI com testes e build Docker, executado no GitHub Actions</h3>
+<pre>GitHub Actions - workflow CI
+Run: https://github.com/AbnerSLandim/GS2-2026/actions/runs/43866807333
+Resultado: completed / success
+- Run pip install -r requirements.txt: success
+- Testes: success
+- Build da imagem Docker: success</pre>
+<p><code>Dockerfile</code> com usuário sem privilégio de root e <code>HEALTHCHECK</code>;
+<code>.github/workflows/ci.yml</code> roda a cada push: instala dependências, executa os testes e constrói a imagem.</p>
+
+<h3>03 · Segurança (5 práticas)</h3>
+<table>
+<tr><th>Prática</th><th>Como</th></tr>
+<tr><td>Autenticação</td><td>Senha com hash PBKDF2-SHA256 + sal; comparação em tempo constante.</td></tr>
+<tr><td>Bloqueio de tentativas</td><td>5 erros bloqueiam o login por 30 s (por sessão).</td></tr>
+<tr><td>Falha fechada</td><td>Sem senha configurada, o app não abre.</td></tr>
+<tr><td>Proteção de dados e segredos</td><td><code>.env</code> fora do Git e da imagem Docker; senha nunca no código.</td></tr>
+<tr><td>Erros sem vazamento</td><td>Falha do banco mostra aviso genérico; detalhe vai só para o log.</td></tr>
+</table>
+
+<h3>04 · Testes: plano com 15 casos, 30 testes automatizados, todos passando</h3>
+<table>
+<tr><th>ID</th><th>Caso</th><th>Resultado</th></tr>
+<tr><td>T01</td><td>Pontuação igual à do Big Data</td><td>✅</td></tr>
+<tr><td>T02</td><td>Alerta crítico com motivo e medidas</td><td>✅</td></tr>
+<tr><td>T03</td><td>Motivo considera o histórico</td><td>✅</td></tr>
+<tr><td>T05</td><td>App fechado sem senha</td><td>✅</td></tr>
+<tr><td>T06</td><td>Login errado e certo</td><td>✅</td></tr>
+<tr><td>T07</td><td>Bloqueio após 5 tentativas</td><td>✅</td></tr>
+<tr><td>T09</td><td>As 5 telas abrem sem erro</td><td>✅</td></tr>
+<tr><td>T10</td><td>Fluxo "Minha região" completo</td><td>✅</td></tr>
+<tr><td>T12</td><td>Regiões iguais ao seed do Oracle</td><td>✅</td></tr>
+<tr><td>T14</td><td>Oracle fora do ar não derruba o app</td><td>✅</td></tr>
+</table>
+<p>Plano completo em <code>docs/PLANO_DE_TESTES.md</code>; saída da execução em
+<code>docs/evidencias/pytest_2026-11-16.txt</code> e no GitHub Actions.</p>
+
+<h2>Uso de IA generativa</h2>
+<p>Claude Code (Anthropic) foi usado como apoio para escrever e revisar o código de <code>app/</code>, <code>iot/</code> e
+<code>tests/</code> e estes documentos. O código foi executado e testado pelo integrante responsável.</p>
+
+<div class="aviso"><b>Limites declarados:</b> sensores e ocorrências do modo de demonstração são simulados;
+a pontuação de risco é experimental e não substitui alertas oficiais da Defesa Civil;
+não testado contra um Oracle real.</div>
+
+</body>
+</html>

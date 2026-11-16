@@ -1,0 +1,13 @@
+GLOBAL SOLUTION 2026/2 - CitizenTech - 4ESOA
+Projeto: AlertaClima
+
+Grupo: <PREENCHER nome/numero do grupo no portal>
+
+Integrantes (RM - Nome):
+RM551679 - Aldrin da Silva Rodrigues
+RM<PREENCHER> - <PREENCHER Joy (nome completo)>
+RM<PREENCHER> - <PREENCHER Zerlin (nome completo)>
+RM<PREENCHER> - <PREENCHER Daniel (nome completo)>
+
+Link do video pitch (publico, ate 3 min):
+<PREENCHER link YouTube/Drive/Vimeo - testar em aba anonima>

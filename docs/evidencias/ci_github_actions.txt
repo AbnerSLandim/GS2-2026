@@ -1,0 +1,15 @@
+GitHub Actions - workflow CI
+Run: https://github.com/AbnerSLandim/GS2-2026/actions/runs/43866807333
+Commit: a6b6db9d08f8264bd05f8369ef8214a9ab056205
+Data: 2026-11-16T12:27:53Z
+Resultado: completed / success
+
+- Set up job: success
+- Run actions/checkout@v4: success
+- Run actions/setup-python@v5: success
+- Run pip install -r requirements.txt: success
+- Testes: success
+- Build da imagem Docker: success
+- Post Run actions/setup-python@v5: success
+- Post Run actions/checkout@v4: success
+- Complete job: success
