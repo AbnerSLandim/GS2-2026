@@ -1,92 +1,72 @@
-# app/ — MVP web do AlertaClima (experiência digital)
+# AlertaClima — plataforma (MVP, IoT e experiência digital)
 
-Painel Streamlit que mostra o risco climático por região, o **motivo** de cada
-alerta e as **medidas preventivas**, com mapa e sensores de chuva e vento.
+Site em **React** (`web/`) servido por uma **API FastAPI** (`api/`), usando a lógica testada em `app/` e `iot/`
+e os dados do Oracle do módulo de Big Data (ou dados simulados, sempre sinalizados na tela).
 
-Segue o padrão do módulo de Big Data: Python, Streamlit, Plotly,
-`python-oracledb`, `.env` e as mesmas tabelas Oracle.
+| Pasta | O que é |
+|---|---|
+| `web/` | Site: landing, Meu bairro (público) e painel da Defesa Civil (login) com visão geral, indicadores, mapa, alertas e sensores ao vivo |
+| `api/main.py` | API: rotas públicas e protegidas, login com cookie seguro, streaming dos sensores (SSE), serve o site |
+| `app/` | Regras: pontuação e alertas (`alertas.py`), dados (`dados.py`), indicadores do Big Data (`indicadores.py`), sensores ao vivo (`ao_vivo.py`), segurança (`seguranca.py`) |
+| `iot/simulador_sensores.py` | Sensores simulados de chuva e vento (`TIPO_DADO = 'SENSOR'`) |
 
 ## Requisitos
 
-- **Python 3.11 ou 3.12** (as versões fixadas em `requirements.txt` exigem 3.11+).
-- Oracle é **opcional**: sem ele o app roda com dados simulados e avisa na tela.
+- Python 3.11 ou 3.12
+- Node.js 20 ou mais novo
 
 ## Como rodar
 
 ```bash
 pip install -r requirements.txt
+npm --prefix web ci
+npm --prefix web run build
 python -m app.seguranca            # pede uma senha e imprime o hash
 ```
 
-Crie um arquivo `.env` (pode partir do `.env.example`) com **apenas** a linha do hash:
+Crie um `.env` na raiz com **apenas** a linha do hash (os `DB_*` só se houver um Oracle de verdade):
 
 ```env
 APP_SENHA_HASH=<hash impresso acima>
 ```
 
-> Não deixe os `DB_*` de exemplo no `.env`: eles ligam a tentativa de conexão
-> com o Oracle e o app passa a mostrar "Oracle indisponível". Preencha `DB_USER`,
-> `DB_PASSWORD` e `DB_DSN` somente se houver um Oracle de verdade.
-
 ```bash
-streamlit run app/main.py
+python -m uvicorn api.main:app --port 8000
 ```
 
-Entre com a senha escolhida. Para desenvolvimento local sem senha: `APP_AUTH=off`.
+Abra `http://localhost:8000`. O painel fica em `/painel` (pede a senha).
+Para gravar o vídeo: `http://localhost:8000/?apresentacao=auto` em tela cheia (F11).
 
-## Telas
-
-1. **Visão geral:** indicadores e tabela de regiões com histórico de ocorrências.
-2. **Mapa de riscos:** risco por região no mapa.
-3. **Alertas:** motivo e medidas preventivas, do mais grave ao menos grave.
-4. **Minha região:** escolha a região e veja risco, motivo e o que fazer.
-5. **Sensores:** leituras de chuva e vento.
+**Desenvolvimento do site:** com a API rodando, `npm --prefix web run dev` (o Vite repassa `/api` para a porta 8000).
 
 ## Docker
 
 ```bash
 docker build -t alertaclima .
-docker run --rm -p 8501:8501 --env-file .env alertaclima
+docker run --rm -p 8000:8000 --env-file .env alertaclima
 ```
-
-Sem `APP_SENHA_HASH` no ambiente, o contêiner abre como "Acesso bloqueado".
 
 ## Testes
 
 ```bash
 python -m pytest tests -v
+npm --prefix web run lint
 ```
-
-Plano e evidência em `docs/PLANO_DE_TESTES.md`.
-
-## Arquivos
-
-| Arquivo | O que faz |
-|---|---|
-| `main.py` | As 5 telas |
-| `dados.py` | Lê Oracle (`REGIOES`, `DADOS_CLIMATICOS`, `OCORRENCIAS`, `ANALISE_RISCO`) ou usa simulação |
-| `alertas.py` | Alerta com motivo e medidas; reaproveita a pontuação de `processamento/calcular_risco.py` |
-| `seguranca.py` | Login por senha (PBKDF2), bloqueio por tentativas, falha fechada |
-| `../iot/simulador_sensores.py` | Sensores simulados de chuva e vento (`TIPO_DADO = 'SENSOR'`) |
 
 ## Segurança
 
-- A senha nunca vai para o Git: só o hash, em `APP_SENHA_HASH`.
-- Sem `APP_SENHA_HASH` (e sem `APP_AUTH=off`), o app **não abre**.
-- 5 tentativas erradas bloqueiam o login por 30 s (por sessão do navegador).
-- O `.env` está no `.gitignore` e no `.dockerignore`.
-- O detalhe de erros do Oracle vai para o log do servidor, não para a tela.
+- Senha só como hash PBKDF2 (`APP_SENHA_HASH`); sessão em cookie HttpOnly/SameSite=Strict assinado (HMAC), 8 h.
+- 5 senhas erradas bloqueiam o IP por 30 s. Sem senha configurada, o painel não abre (503).
+- Cabeçalhos de segurança em todas as respostas; erro do Oracle nunca vai para o navegador.
+- `.env` fora do Git e da imagem Docker.
 
 ## Uso de IA generativa (declaração exigida pelo edital)
 
-- **Claude Code (Anthropic)** foi usado para escrever o código de `app/`, `iot/` e `tests/`, os documentos em `docs/` e para auditar o resultado.
+- **Claude Code (Anthropic)** foi usado para escrever e revisar o código de `api/`, `app/`, `iot/`, `web/` e `tests/` e os documentos em `docs/`.
 - **[PENDENTE — preencher só depois de feito]** Revisão humana do código por: ______ em ____/____/2026.
-- Dados de exemplo e leituras de sensor são sintéticos.
 
 ## Limites conhecidos
 
-- Os sensores são **simulados**; não há hardware conectado.
-- No modo simulado, a "chuva" e o "vento" são as leituras dos sensores simulados das últimas 24 h, e alimentam a pontuação. No modo Oracle, o risco usa a previsão e o nível vem da última análise gravada.
-- Os alertas são baseados em regras. A geração de texto por IA é da área de IA.
-- A pontuação é experimental e não substitui alertas oficiais da Defesa Civil.
-- Não testado contra um Oracle real, nem com Docker (sem Docker nesta máquina).
+- Sensores e ocorrências da demonstração são **simulados**.
+- A pontuação de risco é experimental e não substitui alertas oficiais da Defesa Civil.
+- Não testado contra um Oracle real. Mapa usa tiles do OpenStreetMap (uso justo).

@@ -1,0 +1,169 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    @apply bg-paper font-sans text-[17px] leading-[1.55] text-ink;
+    font-feature-settings: "kern", "liga";
+  }
+  h1, h2, h3, h4 {
+    @apply font-display text-ink;
+    letter-spacing: -0.025em;
+  }
+  :focus-visible {
+    outline: 2.5px solid #0E5966;
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  ::selection {
+    background: #D0E1E3;
+  }
+}
+
+@layer components {
+  .botao {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-petrol-700 px-5 py-2.5 font-display text-[14.5px] font-semibold tracking-[-0.01em] text-paper transition-colors hover:bg-petrol-800 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .botao-linha {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-rule-strong px-3.5 py-1.5 font-display text-[13px] font-semibold text-ink transition-colors hover:border-ink hover:bg-paper-card;
+  }
+  .link-seta {
+    @apply inline-flex items-center gap-1.5 font-display text-[14.5px] font-semibold text-petrol-700 underline decoration-petrol-300 decoration-1 underline-offset-[5px] transition-colors hover:decoration-petrol-700;
+  }
+  .folha {
+    @apply rounded-2xl border border-rule bg-paper-card;
+  }
+  .numero-display {
+    @apply font-display font-bold tabular-nums;
+    letter-spacing: -0.045em;
+    line-height: 0.9;
+  }
+  .regua {
+    @apply border-t border-rule;
+  }
+}
+
+.esqueleto {
+  background: linear-gradient(90deg, #E9E6DE 0%, #F1EEE7 50%, #E9E6DE 100%);
+  background-size: 200% 100%;
+  animation: brilho 1.4s ease-in-out infinite;
+}
+@keyframes brilho {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+.pulso::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: currentColor;
+  animation: pulso 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) infinite;
+}
+@keyframes pulso {
+  0% { transform: scale(1); opacity: 0.55; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+
+/* Leaflet: popup e controles no estilo do produto */
+.leaflet-container {
+  font-family: inherit;
+  background: #EEEDE8;
+}
+.leaflet-popup-content-wrapper {
+  border-radius: 14px;
+  box-shadow: 0 2px 4px rgba(20, 23, 28, 0.06), 0 18px 40px -12px rgba(20, 23, 28, 0.28);
+  border: 1px solid #DCD8CD;
+  background: #FBFAF7;
+  padding: 0;
+}
+.leaflet-popup-content {
+  margin: 0;
+  width: 280px !important;
+  line-height: 1.45;
+}
+.leaflet-popup-tip {
+  background: #FBFAF7;
+  border: 1px solid #DCD8CD;
+  box-shadow: none;
+}
+.leaflet-container a.leaflet-popup-close-button {
+  top: 10px;
+  right: 10px;
+  color: #5B5F66;
+}
+.leaflet-control-attribution {
+  font-size: 11px;
+  background: rgba(251, 250, 247, 0.9) !important;
+  color: #5B5F66;
+}
+.leaflet-control-attribution a {
+  color: #0B4A55;
+}
+.leaflet-bar a {
+  color: #14171C;
+  background: #FBFAF7;
+}
+.leaflet-bar {
+  border: 1px solid #DCD8CD !important;
+  border-radius: 10px !important;
+  overflow: hidden;
+  box-shadow: none !important;
+}
+
+.modo-apresentacao,
+.modo-apresentacao * {
+  cursor: none !important;
+}
+
+.rolagem-fina::-webkit-scrollbar {
+  height: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .pulso::after {
+    display: none;
+  }
+}
+
+/* rótulo permanente dos círculos no mapa */
+.leaflet-tooltip.rotulo-mapa {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0 0 2px;
+  font-family: "Montserrat Variable", Montserrat, sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  color: #14171C;
+  text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 6px #fff;
+}
+.leaflet-tooltip.rotulo-mapa::before {
+  display: none;
+}
+
+/* base OSM em tons de papel: calma, para as cores de risco serem as únicas fortes */
+.tiles-claros {
+  filter: grayscale(1) sepia(0.12) brightness(1.06) contrast(0.82);
+}
+
+/* o campo de senha tem botão próprio de mostrar/ocultar */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
