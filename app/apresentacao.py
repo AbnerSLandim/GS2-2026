@@ -24,7 +24,7 @@ PASSOS = [
             "Quem mais sofre são os moradores das regiões que já foram atingidas antes.",
         ],
         "tela": None,
-        "segundos": 16,
+        "segundos": 14,
     },
     {
         "id": "solucao",
@@ -36,7 +36,7 @@ PASSOS = [
             "Entrega medidas preventivas claras para o cidadão se preparar antes.",
         ],
         "tela": None,
-        "segundos": 16,
+        "segundos": 14,
     },
     {
         "id": "seguranca",
@@ -48,7 +48,7 @@ PASSOS = [
             "Sem senha configurada, o sistema não abre: segurança por padrão.",
         ],
         "tela": "login",
-        "segundos": 13,
+        "segundos": 10,
     },
     {
         "id": "visao_geral",
@@ -59,7 +59,7 @@ PASSOS = [
             "Tabela com nível de risco e histórico de ocorrências de cada bairro.",
         ],
         "tela": "visao_geral",
-        "segundos": 17,
+        "segundos": 15,
     },
     {
         "id": "mapa",
@@ -70,7 +70,7 @@ PASSOS = [
             "Em segundos se vê onde agir primeiro.",
         ],
         "tela": "mapa",
-        "segundos": 17,
+        "segundos": 15,
     },
     {
         "id": "alertas",
@@ -81,7 +81,7 @@ PASSOS = [
             "E traz as medidas preventivas certas para aquele nível de risco.",
         ],
         "tela": "alertas",
-        "segundos": 18,
+        "segundos": 16,
     },
     {
         "id": "regiao_critica",
@@ -93,7 +93,7 @@ PASSOS = [
         ],
         "tela": "minha_regiao",
         "regiao": "Butanta",
-        "segundos": 15,
+        "segundos": 14,
     },
     {
         "id": "regiao_baixa",
@@ -104,18 +104,18 @@ PASSOS = [
         ],
         "tela": "minha_regiao",
         "regiao": "Centro",
-        "segundos": 10,
+        "segundos": 9,
     },
     {
-        "id": "sensores",
-        "etapa": "Demonstração · 5 de 5 · IoT",
-        "titulo": "Sensores de chuva e vento",
+        "id": "ao_vivo",
+        "etapa": "Demonstração · 5 de 5 · IoT ao vivo",
+        "titulo": "Sensores enviando dados em tempo real",
         "texto": [
-            "Leituras hora a hora por bairro, no mesmo formato do banco Oracle do projeto.",
-            "Nesta demonstração os sensores são simulados.",
+            "Cada bairro envia leituras de chuva e vento; o risco é recalculado a cada leitura.",
+            "Acompanhe uma frente de chuva chegando e os alertas mudando na hora (dados simulados).",
         ],
-        "tela": "sensores",
-        "segundos": 14,
+        "tela": "ao_vivo",
+        "segundos": 26,
     },
     {
         "id": "devops",
@@ -127,7 +127,7 @@ PASSOS = [
             "Segredos fora do código e dados organizados em Oracle.",
         ],
         "tela": None,
-        "segundos": 15,
+        "segundos": 13,
     },
     {
         "id": "impacto",
@@ -139,7 +139,7 @@ PASSOS = [
             "ODS 11 (cidades sustentáveis) e ODS 13 (ação contra a mudança do clima).",
         ],
         "tela": None,
-        "segundos": 15,
+        "segundos": 13,
     },
     {
         "id": "fechamento",
@@ -150,7 +150,7 @@ PASSOS = [
             "AlertaClima · FIAP Global Solution 2026/2 · CitizenTech",
         ],
         "tela": None,
-        "segundos": 12,
+        "segundos": 10,
     },
 ]
 
@@ -165,7 +165,9 @@ CSS = """
 <style>
 [data-testid="stSidebar"], [data-testid="stSidebarCollapsedControl"],
 header[data-testid="stHeader"], [data-testid="stToolbar"] { display: none !important; }
-.block-container { padding-top: 1.2rem !important; max-width: 1200px; }
+.block-container { padding: 1.4rem 3.5rem 1rem !important; max-width: 1640px !important; }
+/* esconde restos do passo anterior (o Streamlit os marca como "stale") */
+[data-stale="true"] { display: none !important; }
 .ac-legenda {
   border: 1px solid #3a3a44; border-left: 6px solid #c8281e; border-radius: 12px;
   background: linear-gradient(135deg, #1c1d24 0%, #23242d 100%);
@@ -254,16 +256,27 @@ def executar(st, telas, modo):
     indice = max(0, min(indice, len(PASSOS) - 1))
     passo = PASSOS[indice]
 
-    if passo["tela"] is None:
-        slide(st, passo, indice)
-    else:
-        legenda(st, passo, indice)
-        if passo["tela"] == "login":
-            login_ilustrativo(st)
-        elif passo["tela"] == "minha_regiao":
-            telas["minha_regiao"](regiao=passo.get("regiao"))
+    # O conteudo vai num container criado ANTES dos espacos vazios: assim os
+    # restos da tela anterior somem antes de desenhar a nova (sem "fantasma").
+    # st.empty() troca o bloco inteiro a cada passo, apagando os filhos antigos.
+    area = st.empty()
+
+    with area.container():
+        if passo["tela"] is None:
+            slide(st, passo, indice)
         else:
-            telas[passo["tela"]]()
+            legenda(st, passo, indice)
+            if passo["tela"] == "login":
+                login_ilustrativo(st)
+            elif passo["tela"] == "minha_regiao":
+                telas["minha_regiao"](regiao=passo.get("regiao"))
+            elif passo["tela"] == "ao_vivo":
+                from app import ao_vivo
+
+                ao_vivo.executar(st, segundos=passo["segundos"] - 2)
+                passo = {**passo, "segundos": 2}  # o streaming ja consumiu o tempo
+            else:
+                telas[passo["tela"]]()
 
     if modo == "manual":
         c1, c2, c3 = st.columns([1, 6, 1])

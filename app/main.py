@@ -28,6 +28,22 @@ st.set_page_config(
 
 exigir_login(st)
 
+st.markdown(
+    """<style>
+.block-container { padding-top: 2rem; }
+h1 { font-weight: 800 !important; letter-spacing: -.01em; }
+[data-testid="stMetric"] {
+  background: linear-gradient(135deg, #1b1c23 0%, #22232c 100%);
+  border: 1px solid #2f3039; border-radius: 14px; padding: 14px 16px;
+}
+[data-testid="stMetricLabel"] p { color: #a9a9b5 !important; font-size: .85rem !important; }
+[data-testid="stMetricValue"] { font-weight: 800; }
+[data-testid="stExpander"] { border-radius: 12px; border-color: #2f3039; }
+[data-testid="stDataFrame"] { border-radius: 12px; overflow: hidden; }
+</style>""",
+    unsafe_allow_html=True,
+)
+
 CORES_NIVEL = {
     "BAIXO": "#2e9e5b",
     "MODERADO": "#e0b400",
@@ -281,6 +297,12 @@ def tela_minha_regiao(regiao=None):
 
 def tela_sensores():
     st.title("📡 Sensores de chuva e vento")
+
+    if st.button("▶ Simular streaming ao vivo (20 s)"):
+        from app import ao_vivo
+
+        ao_vivo.executar(st, segundos=20)
+        st.divider()
 
     df_sensores, fonte_sensores, aviso_sensores = carregar_sensores_cache()
 
